@@ -26,16 +26,28 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'home' %}">Início</a>  <!-- Link para a página inicial -->
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}">Login</a>  <!-- Link para a página de login -->
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'register' %}">Cadastrar</a>
-                    </li>
+    
+                    <!-- Verifica se o usuário está autenticado -->
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'inventario' %}">Inventário</a>  <!-- Link para a página de inventário -->
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logout' %}">Logout</a>  <!-- Link para logout -->
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">Login</a>  <!-- Link para a página de login -->
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'register' %}">Cadastrar</a>  <!-- Link para a página de cadastro -->
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
+    
     {% endblock %}
 
     {% block conteudo %}

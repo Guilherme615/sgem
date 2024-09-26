@@ -4,7 +4,7 @@
     --cambridge-blue: #839788ff;
     --thistle: #dec5e3ff;
     --azul: #296eb4ff;
-    --tea-green: #f4f9f4; /* Ajustei para um tom mais suave, quase branco */
+    --tea-green: #f4f9f4; /* Tom suave, quase branco */
 }
 
 /* Estilo geral */
@@ -21,17 +21,17 @@ body {
 .container {
     max-width: 800px; /* Limita a largura do container */
     margin: 0 auto;
-    padding: 100px 20px; /* Espaçamento superior e inferior maior para centralizar o conteúdo */
-    background-color: var(--tea-green); /* Fundo do container igual ao do corpo */
-    color: var(--dark-green); /* Texto */
-    text-align: center;
+    padding: 50px 20px; /* Ajuste o padding superior e inferior para um melhor espaçamento */
+    background-color: white; /* Fundo do container branco para contraste */
+    border-radius: 10px; /* Bordas arredondadas */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra para profundidade */
 }
 
 /* Título principal */
 .titulo-principal {
     font-size: 2.5rem;
     font-weight: bold;
-    color: var(--azul); /* Azul vibrante para dar foco ao título */
+    color: var(--azul); /* Azul vibrante para foco no título */
     margin-bottom: 20px;
 }
 
@@ -42,7 +42,23 @@ body {
     margin-bottom: 40px;
 }
 
-/* Botão minimalista */
+/* Estilo do formulário */
+form {
+    margin-top: 20px;
+}
+
+/* Estilo dos campos do formulário */
+input[type="text"],
+input[type="password"] {
+    width: 100%; /* Largura total */
+    padding: 10px; /* Espaçamento interno */
+    margin-bottom: 20px; /* Espaço abaixo do campo */
+    border: 1px solid var(--cambridge-blue); /* Borda suave */
+    border-radius: 5px; /* Bordas arredondadas */
+    font-size: 1rem;
+}
+
+/* Estilo do botão */
 .btn-custom {
     background-color: transparent;
     border: 2px solid var(--azul); /* Azul no contorno */
@@ -60,6 +76,11 @@ body {
     color: #fff; /* Texto branco no hover */
 }
 
+/* Alertas */
+.alert {
+    margin-top: 20px; /* Espaço acima do alerta */
+}
+
 /* Responsividade para telas menores */
 @media (max-width: 768px) {
     .titulo-principal {
@@ -71,5 +92,9 @@ body {
     .btn-custom {
         font-size: 1rem;
         padding: 8px 20px;
+    }
+    input[type="text"],
+    input[type="password"] {
+        font-size: 0.9rem; /* Ajuste de tamanho dos campos de entrada */
     }
 }
