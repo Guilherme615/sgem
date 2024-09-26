@@ -9,20 +9,66 @@ class LoginForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput)
 
 class RegistrationForm(UserCreationForm):
-    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Digite seu e-mail'}))
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Digite seu e-mail'
+        }),
+        error_messages={
+            'required': 'O e-mail é obrigatório.',
+            'invalid': 'Por favor, insira um e-mail válido.'
+        }
+    )
+
+    first_name = forms.CharField(
+        max_length=30,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Digite seu primeiro nome'
+        }),
+        error_messages={
+            'required': 'O primeiro nome é obrigatório.'
+        }
+    )
+
+    last_name = forms.CharField(
+        max_length=30,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Digite seu sobrenome'
+        }),
+        error_messages={
+            'required': 'O sobrenome é obrigatório.'
+        }
+    )
 
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email', 'password1', 'password2']  # Usando password1 e password2 para o UserCreationForm
+        fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2')
+        widgets = {
+            'username': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Escolha um nome de usuário'
+            }),
+            'password1': forms.PasswordInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Digite sua senha'
+            }),
+            'password2': forms.PasswordInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Confirme sua senha'
+            }),
+        }
 
-    def clean(self):
-        cleaned_data = super().clean()
-        password1 = cleaned_data.get("password1")
-        password2 = cleaned_data.get("password2")
-
-        if password1 and password2 and password1 != password2:
-            raise forms.ValidationError("As senhas não coincidem.")
-
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError('Este e-mail já está em uso.')
+        return email
+    
 class ProdutoForm(forms.ModelForm):
     class Meta:
         model = Produto
