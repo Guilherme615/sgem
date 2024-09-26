@@ -1,0 +1,22 @@
+<h1>Lista de Produtos</h1>
+<a href="{% url 'cadastrar_produto' %}">Cadastrar Novo Produto</a>
+<table>
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Categoria</th>
+            <th>Quantidade</th>
+            <th>Validade</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for produto in produtos %}
+        <tr>
+            <td>{{ produto.nome }}</td>
+            <td>{{ produto.categoria.nome }}</td>
+            <td>{{ produto.quantidade }} {{ produto.unidade_medida }}</td>
+            <td>{{ produto.data_validade }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

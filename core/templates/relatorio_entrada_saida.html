@@ -1,0 +1,24 @@
+<h1>Relatório de Entrada e Saída de Produtos</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Produto</th>
+            <th>Quantidade</th>
+            <th>Data</th>
+            <th>Tipo</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for movimento in movimentos %}
+            <tr>
+                <td>{{ movimento.produto.nome }}</td>
+                <td>{{ movimento.quantidade }}</td>
+                <td>{{ movimento.data_movimentacao }}</td>
+                <td>{{ movimento.tipo_movimentacao }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{% url 'exportar_csv' %}">Exportar CSV</a>
+<a href="?format=pdf">Baixar PDF</a>

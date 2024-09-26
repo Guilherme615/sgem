@@ -1,0 +1,29 @@
+{% extends 'modelo.html' %}
+{% block titulo %}Movimentação de Estoque{% endblock %}
+{% block conteudo %}
+<div class="container mt-4">
+    <h2>Histórico de Movimentações de Estoque</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Produto</th>
+                <th>Tipo</th>
+                <th>Quantidade</th>
+                <th>Data</th>
+                <th>Fornecedor/Destino</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for movimento in movimentos %}
+            <tr>
+                <td>{{ movimento.produto.nome }}</td>
+                <td>{{ movimento.tipo }}</td>
+                <td>{{ movimento.quantidade }}</td>
+                <td>{{ movimento.data_movimento }}</td>
+                <td>{{ movimento.fornecedor }}{{ movimento.destino }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

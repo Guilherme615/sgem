@@ -1,0 +1,75 @@
+/* Cores personalizadas */
+:root {
+    --dark-green: #042a2bff;
+    --cambridge-blue: #839788ff;
+    --thistle: #dec5e3ff;
+    --azul: #296eb4ff;
+    --tea-green: #f4f9f4; /* Ajustei para um tom mais suave, quase branco */
+}
+
+/* Estilo geral */
+body {
+    background-color: var(--tea-green); /* Fundo claro, quase branco */
+    font-family: 'Arial', sans-serif;
+    color: var(--dark-green); /* Texto em verde escuro */
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+}
+
+/* Container principal */
+.container {
+    max-width: 800px; /* Limita a largura do container */
+    margin: 0 auto;
+    padding: 100px 20px; /* Espaçamento superior e inferior maior para centralizar o conteúdo */
+    background-color: var(--tea-green); /* Fundo do container igual ao do corpo */
+    color: var(--dark-green); /* Texto */
+    text-align: center;
+}
+
+/* Título principal */
+.titulo-principal {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--azul); /* Azul vibrante para dar foco ao título */
+    margin-bottom: 20px;
+}
+
+/* Texto descritivo */
+.texto-descricao {
+    font-size: 1.2rem;
+    color: var(--cambridge-blue); /* Cambridge blue para suavidade */
+    margin-bottom: 40px;
+}
+
+/* Botão minimalista */
+.btn-custom {
+    background-color: transparent;
+    border: 2px solid var(--azul); /* Azul no contorno */
+    color: var(--azul); /* Texto em azul */
+    padding: 10px 30px;
+    font-size: 1.1rem;
+    border-radius: 50px; /* Borda arredondada para suavidade */
+    text-decoration: none;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Efeito hover no botão */
+.btn-custom:hover {
+    background-color: var(--azul); /* Azul preenchido no hover */
+    color: #fff; /* Texto branco no hover */
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 768px) {
+    .titulo-principal {
+        font-size: 2rem;
+    }
+    .texto-descricao {
+        font-size: 1rem;
+    }
+    .btn-custom {
+        font-size: 1rem;
+        padding: 8px 20px;
+    }
+}
