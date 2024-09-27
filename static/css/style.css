@@ -98,3 +98,31 @@ input[type="password"] {
         font-size: 0.9rem; /* Ajuste de tamanho dos campos de entrada */
     }
 }
+
+/* Estilos para a tabela de produtos */
+.table {
+    margin-top: 20px; /* Espaço acima da tabela */
+    border-radius: 10px; /* Bordas arredondadas */
+    overflow: hidden; /* Esconde as bordas arredondadas */
+}
+
+/* Estilos para o cabeçalho da tabela */
+.table-dark {
+    background-color: var(--dark-green); /* Cor do cabeçalho */
+    color: white; /* Cor do texto no cabeçalho */
+}
+
+/* Estilo das linhas da tabela ao passar o mouse */
+.table tbody tr:hover {
+    background-color: var(--cambridge-blue); /* Cor ao passar o mouse */
+}
+
+/* Estilo para as células da tabela */
+.table td, .table th {
+    vertical-align: middle; /* Alinhamento vertical */
+}
+
+/* Centraliza o texto na célula de aviso */
+.text-center {
+    text-align: center; /* Centraliza o texto */
+}

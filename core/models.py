@@ -9,14 +9,14 @@ class Categoria(models.Model):
 
 # Modelo para Produtos
 class Produto(models.Model):
-    nome = models.CharField(max_length=200)
-    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
-    unidade_medida = models.CharField(max_length=50, choices=[('kg', 'Quilograma'), ('L', 'Litro'), ('unidade', 'Unidade')])
+    nome = models.CharField(max_length=255)
+    categoria = models.ForeignKey('Categoria', on_delete=models.CASCADE)
     quantidade = models.DecimalField(max_digits=10, decimal_places=2)
     data_validade = models.DateField()
 
     def __str__(self):
         return self.nome
+
 
 # Modelo para Registro de Entrada e Saída de Produtos no Estoque
 class MovimentoEstoque(models.Model):

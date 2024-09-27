@@ -72,7 +72,7 @@ class RegistrationForm(UserCreationForm):
 class ProdutoForm(forms.ModelForm):
     class Meta:
         model = Produto
-        fields = ['nome', 'categoria', 'unidade_medida', 'quantidade', 'data_validade']
+        fields = ['nome', 'categoria', 'quantidade', 'data_validade']
 
 # Formulário para Movimentação de Estoque (Entrada e Saída)
 class MovimentoEstoqueForm(forms.ModelForm):

@@ -6,8 +6,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.utils import timezone
-from .models import Produto, MovimentoEstoque, Fornecedor
-from .forms import LoginForm, RegistrationForm, ProdutoForm, MovimentoEstoqueForm, FornecedorForm, UsuarioForm
+from .models import Produto, MovimentoEstoque, Fornecedor, Categoria
+from .forms import LoginForm, RegistrationForm, MovimentoEstoqueForm, FornecedorForm, UsuarioForm
+from django.shortcuts import get_object_or_404
 
 def home(request):
     return render(request, 'index.html')
@@ -47,25 +48,65 @@ def register_view(request):
 # View para cadastrar produto
 def cadastrar_produto(request):
     if request.method == 'POST':
-        form = ProdutoForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('lista_produtos')
-    else:
-        form = ProdutoForm()
-    return render(request, 'cadastrar_produto.html', {'form': form})
+        # Obter dados do formulário
+        nome = request.POST.get('nome')
+        categoria_nome = request.POST.get('categoria')  # O usuário vai digitar o nome da categoria
+        quantidade = request.POST.get('quantidade')
+        data_validade = request.POST.get('data_validade')
+
+        # Verifique se a categoria existe, se não, crie uma nova
+        categoria, created = Categoria.objects.get_or_create(nome=categoria_nome)
+
+        # Criar e salvar o produto
+        produto = Produto(
+            nome=nome,
+            categoria=categoria,  # Aqui você passa o objeto Categoria
+            quantidade=quantidade,
+            data_validade=data_validade
+        )
+        produto.save()  # Salva o produto no banco de dados
+
+        return redirect('lista_produtos')  # Redireciona após salvar
+
+    # Obtém todas as categorias apenas se não for um POST
+    categorias = Categoria.objects.all()  
+    return render(request, 'cadastrar_produto.html', {'categorias': categorias})
 
 # View para listar produtos
 def lista_produtos(request):
-    produtos = Produto.objects.all()
+    produtos = Produto.objects.all()  # Obtenha todos os produtos
     return render(request, 'lista_produtos.html', {'produtos': produtos})
+
+# View para editar produto
+def editar_produto(request, id):
+    produto = get_object_or_404(Produto, id=id)
+
+    if request.method == 'POST':
+        produto.nome = request.POST.get('nome')
+        produto.categoria_id = request.POST.get('categoria')
+        produto.quantidade = request.POST.get('quantidade')
+        produto.data_validade = request.POST.get('data_validade')
+        produto.save()
+
+        return redirect('lista_produtos')
+
+    categorias = Categoria.objects.all()  # Para o dropdown de categorias
+    return render(request, 'editar_produto.html', {'produto': produto, 'categorias': categorias})
+
+# View para excluir produto
+def excluir_produto(request, id):
+    produto = get_object_or_404(Produto, id=id)
+    produto.delete()
+    return redirect('lista_produtos')
 
 # View para movimentação de estoque
 def movimentar_estoque(request):
     if request.method == 'POST':
         form = MovimentoEstoqueForm(request.POST)
         if form.is_valid():
-            form.save()
+            movimento = form.save(commit=False)
+            movimento.usuario = request.user  # Associe o movimento ao usuário logado
+            movimento.save()
             return redirect('lista_movimentos')
     else:
         form = MovimentoEstoqueForm()
@@ -106,13 +147,11 @@ def render_to_pdf(template_src, context_dict={}):
 def relatorio_entrada_saida(request):
     movimentos = MovimentoEstoque.objects.all()
     
-    # Se o usuário solicitar a geração de PDF
     if request.GET.get('format') == 'pdf':
         context = {'movimentos': movimentos}
         pdf = render_to_pdf('relatorio_entrada_saida_pdf.html', context)
         return pdf
     
-    # Caso contrário, renderiza a página HTML normal
     return render(request, 'relatorio_entrada_saida.html', {'movimentos': movimentos})
 
 # Relatório de Validade de Produtos
@@ -150,6 +189,5 @@ def logout_view(request):
 
 # Nova view para o inventário
 def inventario_view(request):
-    # Aqui você pode adicionar a lógica para buscar os produtos ou movimentações que deseja exibir no inventário
     produtos = Produto.objects.all()  # Exemplo: busca todos os produtos
     return render(request, 'inventario.html', {'produtos': produtos})  # Renderiza a página de inventário
