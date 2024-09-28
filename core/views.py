@@ -2,14 +2,15 @@ import os
 from django.http import HttpResponse
 from django.template.loader import get_template
 from xhtml2pdf import pisa
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.utils import timezone
 from .models import Produto, MovimentoEstoque, Fornecedor, Categoria
 from .forms import LoginForm, RegistrationForm, MovimentoEstoqueForm, FornecedorForm, UsuarioForm
-from django.shortcuts import get_object_or_404
+from django.contrib import messages
 
+# Página inicial
 def home(request):
     return render(request, 'index.html')
 
@@ -37,18 +38,25 @@ def register_view(request):
         form = RegistrationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.set_password(form.cleaned_data['password'])
+            user.set_password(form.cleaned_data['password1'])  # Definindo a senha
             user.save()
-            return redirect('login')
+            login(request, user)  # Faz login automático do usuário após o registro
+            messages.success(request, 'Conta criada com sucesso!')  # Mensagem de sucesso
+            return redirect('home')  # Redireciona para a página inicial
+        else:
+            messages.error(request, 'Erro ao criar conta. Verifique os dados.')  # Mensagem de erro
     else:
         form = RegistrationForm()
-
     return render(request, 'register.html', {'form': form})
+
+# Logout do usuário
+def logout_view(request):
+    logout(request)
+    return redirect('login')
 
 # View para cadastrar produto
 def cadastrar_produto(request):
     if request.method == 'POST':
-        # Obter dados do formulário
         nome = request.POST.get('nome')
         categoria_nome = request.POST.get('categoria')  # O usuário vai digitar o nome da categoria
         quantidade = request.POST.get('quantidade')
@@ -60,15 +68,15 @@ def cadastrar_produto(request):
         # Criar e salvar o produto
         produto = Produto(
             nome=nome,
-            categoria=categoria,  # Aqui você passa o objeto Categoria
+            categoria=categoria,
             quantidade=quantidade,
             data_validade=data_validade
         )
-        produto.save()  # Salva o produto no banco de dados
+        produto.save()
 
         return redirect('lista_produtos')  # Redireciona após salvar
 
-    # Obtém todas as categorias apenas se não for um POST
+    # Obtém todas as categorias para dropdown no formulário
     categorias = Categoria.objects.all()  
     return render(request, 'cadastrar_produto.html', {'categorias': categorias})
 
@@ -83,7 +91,14 @@ def editar_produto(request, id):
 
     if request.method == 'POST':
         produto.nome = request.POST.get('nome')
-        produto.categoria_id = request.POST.get('categoria')
+        
+        # Obtém o nome da categoria fornecido no formulário
+        categoria_nome = request.POST.get('categoria')
+        
+        # Busca ou cria a categoria com o nome fornecido
+        categoria, created = Categoria.objects.get_or_create(nome=categoria_nome)
+        
+        produto.categoria = categoria  # Associa a categoria ao produto
         produto.quantidade = request.POST.get('quantidade')
         produto.data_validade = request.POST.get('data_validade')
         produto.save()
@@ -181,13 +196,3 @@ def cadastrar_usuario(request):
 def lista_usuarios(request):
     usuarios = User.objects.all()
     return render(request, 'lista_usuarios.html', {'usuarios': usuarios})
-
-# Logout do usuário
-def logout_view(request):
-    logout(request)
-    return redirect('login')
-
-# Nova view para o inventário
-def inventario_view(request):
-    produtos = Produto.objects.all()  # Exemplo: busca todos os produtos
-    return render(request, 'inventario.html', {'produtos': produtos})  # Renderiza a página de inventário

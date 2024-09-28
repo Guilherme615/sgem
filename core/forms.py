@@ -1,91 +1,116 @@
-# core/forms.py
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models import Produto, MovimentoEstoque, Fornecedor
 
+# Formulário de Login
 class LoginForm(forms.Form):
-    username = forms.CharField(max_length=150)
-    password = forms.CharField(widget=forms.PasswordInput)
+    username = forms.CharField(max_length=150, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
 
+# Formulário de Registro
 class RegistrationForm(UserCreationForm):
     email = forms.EmailField(
         required=True,
         widget=forms.EmailInput(attrs={
             'class': 'form-control',
             'placeholder': 'Digite seu e-mail'
-        }),
-        error_messages={
-            'required': 'O e-mail é obrigatório.',
-            'invalid': 'Por favor, insira um e-mail válido.'
-        }
+        })
+    )
+
+    username = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        label="Nome de Usuário"
     )
 
     first_name = forms.CharField(
         max_length=30,
-        required=True,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Digite seu primeiro nome'
-        }),
-        error_messages={
-            'required': 'O primeiro nome é obrigatório.'
-        }
-    )
-
-    last_name = forms.CharField(
-        max_length=30,
-        required=True,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Digite seu sobrenome'
-        }),
-        error_messages={
-            'required': 'O sobrenome é obrigatório.'
-        }
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        required=False,
+        label="Nome"
     )
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2')
-        widgets = {
-            'username': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Escolha um nome de usuário'
-            }),
-            'password1': forms.PasswordInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Digite sua senha'
-            }),
-            'password2': forms.PasswordInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Confirme sua senha'
-            }),
-        }
+        fields = ('username', 'email', 'first_name', 'password1', 'password2')
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if User.objects.filter(email=email).exists():
             raise forms.ValidationError('Este e-mail já está em uso.')
         return email
-    
+
+    username = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        label="Nome de Usuário"
+    )
+
+    first_name = forms.CharField(
+        max_length=30,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        required=False,
+        label="Nome"
+    )
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'first_name', 'password1', 'password2')
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError('Este e-mail já está em uso.')
+        return email
+
+# Formulário para Cadastro de Produtos
 class ProdutoForm(forms.ModelForm):
     class Meta:
         model = Produto
         fields = ['nome', 'categoria', 'quantidade', 'data_validade']
+        widgets = {
+            'data_validade': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+        }
 
 # Formulário para Movimentação de Estoque (Entrada e Saída)
 class MovimentoEstoqueForm(forms.ModelForm):
     class Meta:
         model = MovimentoEstoque
         fields = ['produto', 'tipo', 'quantidade', 'data_movimento', 'fornecedor', 'nota_fiscal', 'destino']
+        widgets = {
+            'data_movimento': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+        }
 
+# Formulário de Cadastro de Fornecedores
 class FornecedorForm(forms.ModelForm):
     class Meta:
         model = Fornecedor
         fields = ['nome', 'contato', 'telefone', 'email', 'pontualidade']
+        widgets = {
+            'nome': forms.TextInput(attrs={'class': 'form-control'}),
+            'contato': forms.TextInput(attrs={'class': 'form-control'}),
+            'telefone': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'pontualidade': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
 
+# Formulário para Cadastro de Usuários (Admin)
 class UsuarioForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email', 'password', 'is_staff']
+        fields = ['username', 'first_name', 'email', 'password', 'is_staff']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+        }
+
+    def save(self, commit=True):
+        user = super(UsuarioForm, self).save(commit=False)
+        user.set_password(self.cleaned_data['password'])
+        if commit:
+            user.save()
+        return user

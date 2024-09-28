@@ -2,10 +2,10 @@ from django.urls import path
 from .views import (
     login_view, home, register_view, cadastrar_produto, lista_produtos, movimentar_estoque, 
     lista_movimentos, cadastrar_fornecedor, lista_fornecedores, relatorio_entrada_saida, 
-    relatorio_validade_produtos, historico_movimentacoes, lista_usuarios, cadastrar_usuario,
-    inventario_view, logout_view, editar_produto,
-    excluir_produto  # Importando a nova view
+    relatorio_validade_produtos, historico_movimentacoes, lista_usuarios, cadastrar_usuario, logout_view, editar_produto,
+    excluir_produto
 )
+from django.contrib import messages  # Importar mensagens
 
 urlpatterns = [
     path('', home, name='home'),
@@ -25,5 +25,4 @@ urlpatterns = [
     path('historico/movimentacoes/', historico_movimentacoes, name='historico_movimentacoes'),
     path('usuarios/', lista_usuarios, name='lista_usuarios'),
     path('usuarios/cadastrar/', cadastrar_usuario, name='cadastrar_usuario'),
-    path('inventario/', inventario_view, name='inventario'),  # Adicionando a URL para o inventário
 ]
