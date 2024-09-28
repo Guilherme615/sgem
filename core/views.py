@@ -1,4 +1,5 @@
 import os
+import csv
 from django.http import HttpResponse
 from django.template.loader import get_template
 from xhtml2pdf import pisa
@@ -7,7 +8,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.utils import timezone
 from .models import Produto, MovimentoEstoque, Fornecedor, Categoria
-from .forms import LoginForm, RegistrationForm, MovimentoEstoqueForm, FornecedorForm, UsuarioForm
+from .forms import LoginForm, RegistrationForm, MovimentoEstoqueForm, UsuarioForm
 from django.contrib import messages
 
 # Página inicial
@@ -58,9 +59,15 @@ def logout_view(request):
 def cadastrar_produto(request):
     if request.method == 'POST':
         nome = request.POST.get('nome')
-        categoria_nome = request.POST.get('categoria')  # O usuário vai digitar o nome da categoria
+        categoria_nome = request.POST.get('categoria')
         quantidade = request.POST.get('quantidade')
         data_validade = request.POST.get('data_validade')
+
+        # Verifica se os dados estão completos
+        if not nome or not categoria_nome or not quantidade or not data_validade:
+            # Retorna uma mensagem de erro se os campos estiverem vazios
+            messages.error(request, 'Todos os campos devem ser preenchidos.')
+            return redirect('cadastrar_produto')  # Redireciona de volta ao formulário
 
         # Verifique se a categoria existe, se não, crie uma nova
         categoria, created = Categoria.objects.get_or_create(nome=categoria_nome)
@@ -73,6 +80,15 @@ def cadastrar_produto(request):
             data_validade=data_validade
         )
         produto.save()
+
+        # Registra a adição no movimento de estoque
+        movimento = MovimentoEstoque(
+            produto=produto,
+            tipo='adicao',
+            quantidade=quantidade,
+            usuario=request.user  # O usuário que está fazendo a adição
+        )
+        movimento.save()
 
         return redirect('lista_produtos')  # Redireciona após salvar
 
@@ -91,26 +107,41 @@ def editar_produto(request, id):
 
     if request.method == 'POST':
         produto.nome = request.POST.get('nome')
-        
-        # Obtém o nome da categoria fornecido no formulário
         categoria_nome = request.POST.get('categoria')
-        
-        # Busca ou cria a categoria com o nome fornecido
         categoria, created = Categoria.objects.get_or_create(nome=categoria_nome)
-        
-        produto.categoria = categoria  # Associa a categoria ao produto
+        produto.categoria = categoria
         produto.quantidade = request.POST.get('quantidade')
         produto.data_validade = request.POST.get('data_validade')
         produto.save()
 
+        # Registra a edição no movimento de estoque
+        movimento = MovimentoEstoque(
+            produto=produto,
+            tipo='edicao',
+            quantidade=produto.quantidade,  # Pode ser a quantidade atual ou a que foi editada
+            usuario=request.user
+        )
+        movimento.save()
+
         return redirect('lista_produtos')
 
-    categorias = Categoria.objects.all()  # Para o dropdown de categorias
+    categorias = Categoria.objects.all()
     return render(request, 'editar_produto.html', {'produto': produto, 'categorias': categorias})
 
 # View para excluir produto
 def excluir_produto(request, id):
     produto = get_object_or_404(Produto, id=id)
+
+    # Registra a exclusão no movimento de estoque
+    movimento = MovimentoEstoque(
+        produto=produto,
+        tipo='exclusao',  # Tipo de movimentação
+        quantidade=produto.quantidade,  # Registra a quantidade que foi excluída
+        usuario=request.user  # Usuário que está excluindo
+    )
+    movimento.save()
+
+    # Exclui o produto
     produto.delete()
     return redirect('lista_produtos')
 
@@ -120,28 +151,22 @@ def movimentar_estoque(request):
         form = MovimentoEstoqueForm(request.POST)
         if form.is_valid():
             movimento = form.save(commit=False)
-            movimento.usuario = request.user  # Associe o movimento ao usuário logado
+            movimento.data_movimento = timezone.now()  # Set the date manually here
+            movimento.usuario = request.user  # Associate the movement with the logged-in user
             movimento.save()
             return redirect('lista_movimentos')
     else:
         form = MovimentoEstoqueForm()
     return render(request, 'movimentar_estoque.html', {'form': form})
 
+
+
 # View para listar movimentações de estoque
 def lista_movimentos(request):
     movimentos = MovimentoEstoque.objects.all()
+    print(f"Total de movimentos: {movimentos.count()}")  # Para debug
     return render(request, 'lista_movimentos.html', {'movimentos': movimentos})
 
-# Cadastro de Fornecedores
-def cadastrar_fornecedor(request):
-    if request.method == 'POST':
-        form = FornecedorForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('lista_fornecedores')
-    else:
-        form = FornecedorForm()
-    return render(request, 'cadastrar_fornecedor.html', {'form': form})
 
 # Consulta de Fornecedores
 def lista_fornecedores(request):
@@ -160,7 +185,7 @@ def render_to_pdf(template_src, context_dict={}):
 
 # Relatório de Entrada e Saída de Produtos
 def relatorio_entrada_saida(request):
-    movimentos = MovimentoEstoque.objects.all()
+    movimentos = MovimentoEstoque.objects.all().order_by('-data_movimento')  # Ordena por data, do mais recente para o mais antigo
     
     if request.GET.get('format') == 'pdf':
         context = {'movimentos': movimentos}
@@ -196,3 +221,22 @@ def cadastrar_usuario(request):
 def lista_usuarios(request):
     usuarios = User.objects.all()
     return render(request, 'lista_usuarios.html', {'usuarios': usuarios})
+
+def exportar_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="relatorio_movimentacoes.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['Produto', 'Quantidade', 'Data', 'Tipo de Movimentação'])
+
+    # Corrigido para usar MovimentoEstoque
+    movimentos = MovimentoEstoque.objects.all()
+    for movimento in movimentos:
+        writer.writerow([
+            movimento.produto.nome,
+            movimento.quantidade,
+            movimento.data_movimentacao.strftime('%Y-%m-%d'),
+            movimento.tipo_movimentacao
+        ])
+
+    return response

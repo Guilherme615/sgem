@@ -1,24 +1,47 @@
-<h1>Relatório de Entrada e Saída de Produtos</h1>
-<table>
-    <thead>
-        <tr>
-            <th>Produto</th>
-            <th>Quantidade</th>
-            <th>Data</th>
-            <th>Tipo</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for movimento in movimentos %}
-            <tr>
-                <td>{{ movimento.produto.nome }}</td>
-                <td>{{ movimento.quantidade }}</td>
-                <td>{{ movimento.data_movimentacao }}</td>
-                <td>{{ movimento.tipo_movimentacao }}</td>
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
+{% extends 'modelo.html' %}
 
-<a href="{% url 'exportar_csv' %}">Exportar CSV</a>
-<a href="?format=pdf">Baixar PDF</a>
+{% block titulo %}
+    <title>Relatório de Movimentação de Produtos</title>
+{% endblock %}
+
+{% block conteudo %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Relatório de Entrada e Saída de Produtos</h1>
+
+    {% if movimentos %}
+    <table class="table table-striped table-bordered table-hover">
+        <thead class="thead-light">
+            <tr>
+                <th>Produto</th>
+                <th>Quantidade</th>
+                <th>Data</th>
+                <th>Tipo</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for movimento in movimentos %}
+                <tr>
+                    <td>{{ movimento.produto.nome }}</td>
+                    <td>{{ movimento.quantidade }}</td>
+                    <td>{{ movimento.data_movimento|date:"d/m/Y" }}</td>
+                    <td>{{ movimento.get_tipo_display }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">Nenhum movimento encontrado.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <div class="alert alert-warning" role="alert">
+            Nenhum movimento encontrado. Verifique se foram registrados movimentos de entrada ou saída.
+        </div>
+    {% endif %}
+
+    <div class="text-center mt-4">
+        <a href="{% url 'exportar_csv' %}" class="btn btn-success me-2">Exportar CSV</a>
+        <a href="?format=pdf" class="btn btn-danger">Baixar PDF</a>
+    </div>
+</div>
+{% endblock %}

@@ -77,9 +77,12 @@ class ProdutoForm(forms.ModelForm):
 class MovimentoEstoqueForm(forms.ModelForm):
     class Meta:
         model = MovimentoEstoque
-        fields = ['produto', 'tipo', 'quantidade', 'data_movimento', 'fornecedor', 'nota_fiscal', 'destino']
+        fields = ['produto', 'tipo', 'quantidade']
         widgets = {
-            'data_movimento': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'quantidade': forms.NumberInput(attrs={'class': 'form-control'}),
+            'fornecedor': forms.Select(attrs={'class': 'form-control'}),
+            'nota_fiscal': forms.TextInput(attrs={'class': 'form-control'}),
+            'destino': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
 # Formulário de Cadastro de Fornecedores

@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Modelo para Categorias de Produtos (Ex: Alimentos, Bebidas)
 class Categoria(models.Model):
@@ -9,31 +10,13 @@ class Categoria(models.Model):
 
 # Modelo para Produtos
 class Produto(models.Model):
-    nome = models.CharField(max_length=255)
+    nome = models.CharField(max_length=100)
     categoria = models.ForeignKey('Categoria', on_delete=models.CASCADE)
-    quantidade = models.DecimalField(max_digits=10, decimal_places=2)
+    quantidade = models.IntegerField()
     data_validade = models.DateField()
 
     def __str__(self):
         return self.nome
-
-
-# Modelo para Registro de Entrada e Saída de Produtos no Estoque
-class MovimentoEstoque(models.Model):
-    TIPO_MOVIMENTO = [
-        ('entrada', 'Entrada'),
-        ('saida', 'Saída'),
-    ]
-    produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
-    tipo = models.CharField(max_length=7, choices=TIPO_MOVIMENTO)
-    quantidade = models.DecimalField(max_digits=10, decimal_places=2)
-    data_movimento = models.DateField()
-    fornecedor = models.CharField(max_length=200, blank=True, null=True)
-    nota_fiscal = models.CharField(max_length=100, blank=True, null=True)
-    destino = models.CharField(max_length=200, blank=True, null=True)  # Usado para saída
-
-    def __str__(self):
-        return f'{self.tipo.capitalize()} - {self.produto.nome}'
 
 class Fornecedor(models.Model):
     nome = models.CharField(max_length=255)
@@ -44,3 +27,11 @@ class Fornecedor(models.Model):
 
     def __str__(self):
         return self.nome
+
+# Modelo para Registro de Entrada e Saída de Produtos no Estoque
+class MovimentoEstoque(models.Model):
+    produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
+    tipo = models.CharField(max_length=10, choices=[('adicao', 'Adição'), ('edicao', 'Edição'), ('exclusao', 'Exclusão')])
+    quantidade = models.IntegerField()
+    data_movimento = models.DateTimeField(auto_now_add=True)
+    usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)  # Permitir nulos
