@@ -98,8 +98,9 @@ def cadastrar_produto(request):
 
 # View para listar produtos
 def lista_produtos(request):
-    produtos = Produto.objects.all()  # Obtenha todos os produtos
+    produtos = Produto.objects.filter(is_deleted=False)  # Filtra produtos que não estão na lixeira
     return render(request, 'lista_produtos.html', {'produtos': produtos})
+
 
 # View para editar produto
 def editar_produto(request, id):
@@ -131,18 +132,20 @@ def editar_produto(request, id):
 # View para excluir produto
 def excluir_produto(request, id):
     produto = get_object_or_404(Produto, id=id)
+    
+    # Marca o produto como excluído
+    produto.is_deleted = True
+    produto.save()
 
     # Registra a exclusão no movimento de estoque
     movimento = MovimentoEstoque(
         produto=produto,
-        tipo='exclusao',  # Tipo de movimentação
-        quantidade=produto.quantidade,  # Registra a quantidade que foi excluída
-        usuario=request.user  # Usuário que está excluindo
+        tipo='exclusao',
+        quantidade=produto.quantidade,
+        usuario=request.user
     )
     movimento.save()
 
-    # Exclui o produto
-    produto.delete()
     return redirect('lista_produtos')
 
 # View para movimentação de estoque
@@ -185,13 +188,18 @@ def render_to_pdf(template_src, context_dict={}):
 
 # Relatório de Entrada e Saída de Produtos
 def relatorio_entrada_saida(request):
-    movimentos = MovimentoEstoque.objects.all().order_by('-data_movimento')  # Ordena por data, do mais recente para o mais antigo
-    
+    movimentos = MovimentoEstoque.objects.all().order_by('-data_movimento')
+
+    # Verifica se o botão de limpar foi clicado
+    if request.method == 'POST' and 'limpar_relatorio' in request.POST:
+        MovimentoEstoque.objects.all().delete()  # Limpa todos os registros de movimentação
+        return redirect('relatorio_entrada_saida')
+
     if request.GET.get('format') == 'pdf':
         context = {'movimentos': movimentos}
         pdf = render_to_pdf('relatorio_entrada_saida_pdf.html', context)
         return pdf
-    
+
     return render(request, 'relatorio_entrada_saida.html', {'movimentos': movimentos})
 
 # Relatório de Validade de Produtos
@@ -240,3 +248,7 @@ def exportar_csv(request):
         ])
 
     return response
+
+def lixeira_produtos(request):
+    produtos_excluidos = Produto.objects.filter(is_deleted=True)  # Lista os produtos na lixeira
+    return render(request, 'lixeira_produtos.html', {'produtos_excluidos': produtos_excluidos})

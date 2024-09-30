@@ -1,0 +1,28 @@
+<h1>Produtos Excluídos (Lixeira)</h1>
+
+{% if produtos_excluidos %}
+    <table>
+        <thead>
+            <tr>
+                <th>Produto</th>
+                <th>Quantidade</th>
+                <th>Data Validade</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for produto in produtos_excluidos %}
+                <tr>
+                    <td>{{ produto.nome }}</td>
+                    <td>{{ produto.quantidade }}</td>
+                    <td>{{ produto.data_validade }}</td>
+                    <td>
+                        <a href="{% url 'restaurar_produto' produto.id %}">Restaurar</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>Nenhum produto excluído.</p>
+{% endif %}

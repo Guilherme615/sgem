@@ -14,6 +14,8 @@ class Produto(models.Model):
     categoria = models.ForeignKey('Categoria', on_delete=models.CASCADE)
     quantidade = models.IntegerField()
     data_validade = models.DateField()
+    is_deleted = models.BooleanField(default=False)  # Campo para marcar produtos excluídos
+
 
     def __str__(self):
         return self.nome
