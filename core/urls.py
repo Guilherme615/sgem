@@ -24,7 +24,8 @@ urlpatterns = [
     path('historico/movimentacoes/', historico_movimentacoes, name='historico_movimentacoes'),
     path('usuarios/', lista_usuarios, name='lista_usuarios'),
     path('usuarios/cadastrar/', cadastrar_usuario, name='cadastrar_usuario'),
-    path('exportar_csv/', views.exportar_csv, name='exportar_csv'),
     path('produtos/excluir/<int:id>/', views.excluir_produto, name='excluir_produto'),
     path('produtos/lixeira/', views.lixeira_produtos, name='lixeira_produtos'),
+    path('produtos-proximos-validade/', views.produtos_proximos_validade, name='produtos_proximos_validade'),
+
 ]

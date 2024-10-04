@@ -21,8 +21,9 @@
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+            
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'home' %}">Início</a>
                     </li>
@@ -45,9 +46,22 @@
                         </li>
                     {% endif %}
                 </ul>
+    
+                {% if user.is_authenticated %}
+                    <!-- Ícone do sino à direita -->
+                    <div class="d-flex align-items-center notification-icon">
+                        <a class="nav-link" href="{% url 'produtos_proximos_validade' %}" title="Produtos próximos da validade">
+                            {% if produtos_proximos_validade %}
+                                <i class="mingcute--notification-newdot-fill"></i>
+                            {% else %}
+                                <i class="mingcute--notification-line"></i>
+                            {% endif %}
+                        </a>
+                    </div>
+                {% endif %}
             </div>
         </div>
-    </nav>
+    </nav>     
     {% endblock %}
 
     {% block conteudo %}

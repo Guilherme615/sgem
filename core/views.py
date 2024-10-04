@@ -1,11 +1,11 @@
 import os
-import csv
 from django.http import HttpResponse
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from datetime import timedelta
 from django.utils import timezone
 from .models import Produto, MovimentoEstoque, Fornecedor, Categoria
 from .forms import LoginForm, RegistrationForm, MovimentoEstoqueForm, UsuarioForm
@@ -230,25 +230,28 @@ def lista_usuarios(request):
     usuarios = User.objects.all()
     return render(request, 'lista_usuarios.html', {'usuarios': usuarios})
 
-def exportar_csv(request):
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="relatorio_movimentacoes.csv"'
-
-    writer = csv.writer(response)
-    writer.writerow(['Produto', 'Quantidade', 'Data', 'Tipo de Movimentação'])
-
-    # Corrigido para usar MovimentoEstoque
-    movimentos = MovimentoEstoque.objects.all()
-    for movimento in movimentos:
-        writer.writerow([
-            movimento.produto.nome,
-            movimento.quantidade,
-            movimento.data_movimentacao.strftime('%Y-%m-%d'),
-            movimento.tipo_movimentacao
-        ])
-
-    return response
-
 def lixeira_produtos(request):
     produtos_excluidos = Produto.objects.filter(is_deleted=True)  # Lista os produtos na lixeira
     return render(request, 'lixeira_produtos.html', {'produtos_excluidos': produtos_excluidos})
+
+def produtos_proximos_validade(request):
+    hoje = timezone.now().date()
+    uma_semana_antes = hoje + timedelta(weeks=1)
+    
+    # Filtra produtos cuja validade é dentro de 1 semana e ainda não expirou
+    produtos_perto_validade = Produto.objects.filter(data_validade__range=[hoje, uma_semana_antes])
+
+    return render(request, 'produtos_proximos_validade.html', {
+        'produtos_perto_validade': produtos_perto_validade
+    })
+
+def navbar_info(request):
+    hoje = timezone.now().date()
+    uma_semana_antes = hoje + timedelta(weeks=1)
+
+    # Verifica se existem produtos próximos da validade
+    produtos_perto_validade = Produto.objects.filter(data_validade__range=[hoje, uma_semana_antes]).exists()
+
+    return {
+        'produtos_proximos_validade': produtos_perto_validade,
+    }
