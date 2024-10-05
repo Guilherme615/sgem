@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from datetime import timedelta
 from django.utils import timezone
-from .models import Produto, MovimentoEstoque, Fornecedor, Categoria
+from .models import Produto, MovimentoEstoque, Categoria
 from .forms import LoginForm, RegistrationForm, MovimentoEstoqueForm, UsuarioForm
 from django.contrib import messages
 
@@ -162,20 +162,11 @@ def movimentar_estoque(request):
         form = MovimentoEstoqueForm()
     return render(request, 'movimentar_estoque.html', {'form': form})
 
-
-
 # View para listar movimentações de estoque
 def lista_movimentos(request):
     movimentos = MovimentoEstoque.objects.all()
     print(f"Total de movimentos: {movimentos.count()}")  # Para debug
     return render(request, 'lista_movimentos.html', {'movimentos': movimentos})
-
-
-# Consulta de Fornecedores
-def lista_fornecedores(request):
-    fornecedores = Fornecedor.objects.all()
-    return render(request, 'lista_fornecedores.html', {'fornecedores': fornecedores})
-
 # Função auxiliar para gerar PDF
 def render_to_pdf(template_src, context_dict={}):
     template = get_template(template_src)

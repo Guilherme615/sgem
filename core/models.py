@@ -16,17 +16,6 @@ class Produto(models.Model):
     data_validade = models.DateField()
     is_deleted = models.BooleanField(default=False)  # Campo para marcar produtos excluídos
 
-
-    def __str__(self):
-        return self.nome
-
-class Fornecedor(models.Model):
-    nome = models.CharField(max_length=255)
-    contato = models.CharField(max_length=100)
-    telefone = models.CharField(max_length=15)
-    email = models.EmailField()
-    pontualidade = models.IntegerField(help_text="Avaliação de 0 a 5")
-
     def __str__(self):
         return self.nome
 
@@ -37,3 +26,6 @@ class MovimentoEstoque(models.Model):
     quantidade = models.IntegerField()
     data_movimento = models.DateTimeField(auto_now_add=True)
     usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)  # Permitir nulos
+
+    def __str__(self):
+        return f'{self.tipo} - {self.produto.nome} ({self.quantidade})'

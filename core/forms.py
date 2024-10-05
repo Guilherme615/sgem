@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .models import Produto, MovimentoEstoque, Fornecedor
+from .models import Produto, MovimentoEstoque
 
 # Formulário de Login
 class LoginForm(forms.Form):
@@ -80,22 +80,8 @@ class MovimentoEstoqueForm(forms.ModelForm):
         fields = ['produto', 'tipo', 'quantidade']
         widgets = {
             'quantidade': forms.NumberInput(attrs={'class': 'form-control'}),
-            'fornecedor': forms.Select(attrs={'class': 'form-control'}),
             'nota_fiscal': forms.TextInput(attrs={'class': 'form-control'}),
             'destino': forms.TextInput(attrs={'class': 'form-control'}),
-        }
-
-# Formulário de Cadastro de Fornecedores
-class FornecedorForm(forms.ModelForm):
-    class Meta:
-        model = Fornecedor
-        fields = ['nome', 'contato', 'telefone', 'email', 'pontualidade']
-        widgets = {
-            'nome': forms.TextInput(attrs={'class': 'form-control'}),
-            'contato': forms.TextInput(attrs={'class': 'form-control'}),
-            'telefone': forms.TextInput(attrs={'class': 'form-control'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'pontualidade': forms.NumberInput(attrs={'class': 'form-control'}),
         }
 
 # Formulário para Cadastro de Usuários (Admin)
