@@ -127,6 +127,10 @@ input[type="password"] {
     text-align: center; /* Centraliza o texto */
 }
 
+.text-center1 {
+    text-align: right; /* Centraliza o texto */
+}
+
 .mingcute--notification-line {
     display: inline-block;
     width: 24px;
