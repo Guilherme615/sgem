@@ -20,12 +20,14 @@
         </thead>
         <tbody>
             {% for movimento in movimentos %}
+                {% if movimento.tipo == 'entrada' or movimento.tipo == 'saida' %}
                 <tr>
                     <td>{{ movimento.produto.nome }}</td>
                     <td>{{ movimento.quantidade }}</td>
                     <td>{{ movimento.data_movimento|date:"d/m/Y" }}</td>
                     <td>{{ movimento.get_tipo_display }}</td>
                 </tr>
+                {% endif %}
             {% empty %}
                 <tr>
                     <td colspan="4" class="text-center">Nenhum movimento encontrado.</td>

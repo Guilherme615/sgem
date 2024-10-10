@@ -22,10 +22,10 @@ class Produto(models.Model):
 # Modelo para Registro de Entrada e Saída de Produtos no Estoque
 class MovimentoEstoque(models.Model):
     produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
-    tipo = models.CharField(max_length=10, choices=[('adicao', 'Adição'), ('edicao', 'Edição'), ('exclusao', 'Exclusão')])
+    tipo = models.CharField(max_length=10, choices=[('entrada', 'Entrada'), ('saida', 'Saída')])
     quantidade = models.IntegerField()
     data_movimento = models.DateTimeField(auto_now_add=True)
-    usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)  # Permitir nulos
+    usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return f'{self.tipo} - {self.produto.nome} ({self.quantidade})'

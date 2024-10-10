@@ -63,16 +63,12 @@ def cadastrar_produto(request):
         quantidade = request.POST.get('quantidade')
         data_validade = request.POST.get('data_validade')
 
-        # Verifica se os dados estão completos
         if not nome or not categoria_nome or not quantidade or not data_validade:
-            # Retorna uma mensagem de erro se os campos estiverem vazios
             messages.error(request, 'Todos os campos devem ser preenchidos.')
-            return redirect('cadastrar_produto')  # Redireciona de volta ao formulário
+            return redirect('cadastrar_produto')
 
-        # Verifique se a categoria existe, se não, crie uma nova
         categoria, created = Categoria.objects.get_or_create(nome=categoria_nome)
 
-        # Criar e salvar o produto
         produto = Produto(
             nome=nome,
             categoria=categoria,
@@ -81,20 +77,20 @@ def cadastrar_produto(request):
         )
         produto.save()
 
-        # Registra a adição no movimento de estoque
+        # Registra como "entrada" no movimento de estoque
         movimento = MovimentoEstoque(
             produto=produto,
-            tipo='adicao',
+            tipo='entrada',
             quantidade=quantidade,
-            usuario=request.user  # O usuário que está fazendo a adição
+            usuario=request.user
         )
         movimento.save()
 
-        return redirect('lista_produtos')  # Redireciona após salvar
+        return redirect('lista_produtos')
 
-    # Obtém todas as categorias para dropdown no formulário
-    categorias = Categoria.objects.all()  
+    categorias = Categoria.objects.all()
     return render(request, 'cadastrar_produto.html', {'categorias': categorias})
+
 
 # View para listar produtos
 def lista_produtos(request):
@@ -133,20 +129,20 @@ def editar_produto(request, id):
 def excluir_produto(request, id):
     produto = get_object_or_404(Produto, id=id)
     
-    # Marca o produto como excluído
     produto.is_deleted = True
     produto.save()
 
-    # Registra a exclusão no movimento de estoque
+    # Registra como "saída" no movimento de estoque
     movimento = MovimentoEstoque(
         produto=produto,
-        tipo='exclusao',
+        tipo='saida',
         quantidade=produto.quantidade,
         usuario=request.user
     )
     movimento.save()
 
     return redirect('lista_produtos')
+
 
 # View para movimentação de estoque
 def movimentar_estoque(request):
@@ -179,11 +175,11 @@ def render_to_pdf(template_src, context_dict={}):
 
 # Relatório de Entrada e Saída de Produtos
 def relatorio_entrada_saida(request):
-    movimentos = MovimentoEstoque.objects.all().order_by('-data_movimento')
+    # Filtra apenas entradas e saídas (removendo edições do relatório)
+    movimentos = MovimentoEstoque.objects.filter(tipo__in=['entrada', 'saida']).order_by('-data_movimento')
 
-    # Verifica se o botão de limpar foi clicado
     if request.method == 'POST' and 'limpar_relatorio' in request.POST:
-        MovimentoEstoque.objects.all().delete()  # Limpa todos os registros de movimentação
+        MovimentoEstoque.objects.all().delete()
         return redirect('relatorio_entrada_saida')
 
     if request.GET.get('format') == 'pdf':
