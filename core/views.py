@@ -268,9 +268,13 @@ def admin_page(request):
         # Adiciona o usuário ao grupo selecionado e define as permissões
         if user_type == 'nutricionista':
             group, created = Group.objects.get_or_create(name='Nutricionista')
-            user.is_superuser = False  # Certifique-se de que o usuário não é superuser
+            if created:
+                print("Grupo 'Nutricionista' criado.")
+            user.is_superuser = False
         elif user_type == 'diretor':
             group, created = Group.objects.get_or_create(name='Diretor')
+            if created:
+                print("Grupo 'Diretor' criado.")
             user.is_superuser = False  # Certifique-se de que o usuário não é superuser
         elif user_type == 'adm':
             group, created = Group.objects.get_or_create(name='Administrador')
@@ -285,6 +289,8 @@ def admin_page(request):
         return redirect('admin_page')
 
     return render(request, 'admin_page.html', {'users': users})
+
+
 
 @login_required(login_url='login')
 def pedidos_view(request):

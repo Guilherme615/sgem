@@ -40,6 +40,7 @@
                                 <a class="nav-link" href="{% url 'pedidos' %}">Pedidos</a>
                             </li>
                         {% endif %}
+
                         
                         {% if user.is_superuser %} {# Verifica se o usuário é administrador #}
                             <li class="nav-item">
