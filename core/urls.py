@@ -4,7 +4,7 @@ from .views import (
     login_view, home, register_view, cadastrar_produto, lista_produtos, 
     lista_movimentos, relatorio_entrada_saida, 
     relatorio_validade_produtos, historico_movimentacoes, lista_usuarios, cadastrar_usuario, logout_view, editar_produto,
-    excluir_produto
+    excluir_produto, pedidos_view
 )
 from django.contrib import messages  # Importar mensagens
 
@@ -26,5 +26,7 @@ urlpatterns = [
     path('produtos/excluir/<int:id>/', views.excluir_produto, name='excluir_produto'),
     path('produtos/lixeira/', views.lixeira_produtos, name='lixeira_produtos'),
     path('produtos-proximos-validade/', views.produtos_proximos_validade, name='produtos_proximos_validade'),
+    path('admin-page/', views.admin_page, name='admin_page'),
+    path('pedidos/', pedidos_view, name='pedidos'),
 
 ]

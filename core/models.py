@@ -29,3 +29,14 @@ class MovimentoEstoque(models.Model):
 
     def __str__(self):
         return f'{self.tipo} - {self.produto.nome} ({self.quantidade})'
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    tipo = models.CharField(max_length=20, choices=[
+        ('diretor', 'Diretor'),
+        ('nutricionista', 'Nutricionista'),
+        ('adm', 'Administrador')
+    ], default='adm')
+
+    def __str__(self):
+        return self.user.username

@@ -34,6 +34,19 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'relatorio_entrada_saida' %}">Relatório de Entrada e Saída</a>
                         </li>
+                        
+                        {% if user.is_superuser or user.groups.filter(name='Diretor').exists %} {# Verifica se o usuário é diretor ou administrador #}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'pedidos' %}">Pedidos</a>
+                            </li>
+                        {% endif %}
+                        
+                        {% if user.is_superuser %} {# Verifica se o usuário é administrador #}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'admin_page' %}">Administração</a>
+                            </li>
+                        {% endif %}
+                        
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'logout' %}">Logout</a>
                         </li>
@@ -63,6 +76,7 @@
         </div>
     </nav>     
     {% endblock %}
+
 
     {% block conteudo %}
     <div class="container mt-4">

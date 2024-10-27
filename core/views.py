@@ -1,15 +1,19 @@
 import os
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, Http404
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from datetime import timedelta
 from django.utils import timezone
 from .models import Produto, MovimentoEstoque, Categoria
 from .forms import LoginForm, RegistrationForm, MovimentoEstoqueForm, UsuarioForm
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from django.urls import reverse, reverse_lazy
+
 
 # Página inicial
 def home(request):
@@ -242,3 +246,48 @@ def navbar_info(request):
     return {
         'produtos_proximos_validade': produtos_perto_validade,
     }
+
+# Verifica se o usuário é administrador
+def is_admin(user):
+    return user.is_superuser  # ou use uma verificação com o campo 'tipo_usuario' ou grupo
+
+@login_required(login_url='login')
+def admin_page(request):
+    users = User.objects.all()
+
+    if request.method == 'POST':
+        # Recebe o usuário e o tipo selecionado
+        user_id = request.POST.get('user_id')
+        user_type = request.POST.get('user_type')
+
+        user = User.objects.get(id=user_id)
+
+        # Remove o usuário de todos os grupos
+        user.groups.clear()
+
+        # Adiciona o usuário ao grupo selecionado e define as permissões
+        if user_type == 'nutricionista':
+            group, created = Group.objects.get_or_create(name='Nutricionista')
+            user.is_superuser = False  # Certifique-se de que o usuário não é superuser
+        elif user_type == 'diretor':
+            group, created = Group.objects.get_or_create(name='Diretor')
+            user.is_superuser = False  # Certifique-se de que o usuário não é superuser
+        elif user_type == 'adm':
+            group, created = Group.objects.get_or_create(name='Administrador')
+            user.is_superuser = True  # Torna o usuário um superuser
+
+        # Adiciona o usuário ao grupo
+        group.user_set.add(user)
+
+        # Salva as alterações no usuário
+        user.save()
+
+        return redirect('admin_page')
+
+    return render(request, 'admin_page.html', {'users': users})
+
+@login_required(login_url='login')
+def pedidos_view(request):
+    # Aqui você pode adicionar a lógica para buscar e exibir os pedidos
+    # Por enquanto, vamos apenas renderizar um template vazio
+    return render(request, 'pedidos.html')
