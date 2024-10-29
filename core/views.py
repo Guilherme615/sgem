@@ -13,6 +13,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.urls import reverse, reverse_lazy
+from django.template import RequestContext
 
 
 # Página inicial
@@ -297,3 +298,6 @@ def pedidos_view(request):
     # Aqui você pode adicionar a lógica para buscar e exibir os pedidos
     # Por enquanto, vamos apenas renderizar um template vazio
     return render(request, 'pedidos.html')
+
+def sua_view(request):
+    return render(request, 'modelo.html')
