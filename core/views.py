@@ -270,15 +270,15 @@ def admin_page(request):
         if user_type == 'nutricionista':
             group, created = Group.objects.get_or_create(name='Nutricionista')
             if created:
-                print("Grupo 'Nutricionista' criado.")
+                print("Grupo 'nutricionista' criado.")
             user.is_superuser = False
         elif user_type == 'diretor':
             group, created = Group.objects.get_or_create(name='Diretor')
             if created:
-                print("Grupo 'Diretor' criado.")
+                print("Grupo 'diretor' criado.")
             user.is_superuser = False  # Certifique-se de que o usuário não é superuser
         elif user_type == 'adm':
-            group, created = Group.objects.get_or_create(name='Administrador')
+            group, created = Group.objects.get_or_create(name='adm')
             user.is_superuser = True  # Torna o usuário um superuser
 
         # Adiciona o usuário ao grupo
