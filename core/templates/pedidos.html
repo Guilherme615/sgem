@@ -1,7 +1,24 @@
 {% extends 'modelo.html' %}
 
-{% block content %}
-    <h1>Página de Pedidos</h1>
-    <p>Aqui você poderá gerenciar os pedidos.</p>
-    <!-- Adicione sua lógica para exibir e gerenciar pedidos aqui -->
+{% block titulo %}
+<title>Pedidos de Produtos</title>
+{% endblock %}
+
+{% block conteudo %}
+<div class="container mt-4">
+    <h3>Pedidos de Produtos</h3>
+    
+    <form method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="produto" class="form-label">Produto</label>
+            <input type="text" class="form-control" id="produto" name="produto" required>
+        </div>
+        <div class="mb-3">
+            <label for="quantidade" class="form-label">Quantidade</label>
+            <input type="number" class="form-control" id="quantidade" name="quantidade" min="1" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Fazer Pedido</button>
+    </form>
+</div>
 {% endblock %}

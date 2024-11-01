@@ -10,7 +10,7 @@ from django.utils import timezone
 from .models import Produto, MovimentoEstoque, Categoria
 from .forms import LoginForm, RegistrationForm, MovimentoEstoqueForm, UsuarioForm
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.http import require_POST
 from django.urls import reverse, reverse_lazy
 from django.template import RequestContext
@@ -253,7 +253,7 @@ def is_admin(user):
     return user.is_superuser  # ou use uma verificação com o campo 'tipo_usuario' ou grupo
 
 @login_required(login_url='login')
-def admin_page(request):
+def admin_dashboard(request):
     users = User.objects.all()
 
     if request.method == 'POST':
@@ -287,16 +287,18 @@ def admin_page(request):
         # Salva as alterações no usuário
         user.save()
 
-        return redirect('admin_page')
+        return redirect('admin_dashboard')  # Redireciona para a sua página personalizada
 
-    return render(request, 'admin_page.html', {'users': users})
+    return render(request, 'admin_dashboard.html', {'users': users})
 
 
 
-@login_required(login_url='login')
+
+@login_required
 def pedidos_view(request):
-    # Aqui você pode adicionar a lógica para buscar e exibir os pedidos
-    # Por enquanto, vamos apenas renderizar um template vazio
+    if request.method == 'POST':
+        # Processamento do pedido
+        pass
     return render(request, 'pedidos.html')
 
 def sua_view(request):
