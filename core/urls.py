@@ -5,7 +5,8 @@ from .views import (
     lista_movimentos, relatorio_entrada_saida, 
     relatorio_validade_produtos, historico_movimentacoes, lista_usuarios, 
     cadastrar_usuario, logout_view, editar_produto, excluir_produto, 
-    pedidos_view, admin_dashboard, lixeira_produtos, produtos_proximos_validade
+    pedidos_view, admin_dashboard, lixeira_produtos, produtos_proximos_validade, 
+    lista_pedidos, gerenciar_pedidos, aprovar_pedido, negar_pedido, excluir_pedido
 )
 
 urlpatterns = [
@@ -26,5 +27,11 @@ urlpatterns = [
     path('produtos/lixeira/', lixeira_produtos, name='lixeira_produtos'),
     path('produtos-proximos-validade/', produtos_proximos_validade, name='produtos_proximos_validade'),
     path('dashboard-admin/', admin_dashboard, name='admin_dashboard'),
-    path('pedidos/', pedidos_view, name='pedidos'),
+    path('pedidos/', pedidos_view, name='pedidos'),  # Página de fazer pedidos
+    path('pedidos/lista/', lista_pedidos, name='lista_pedidos'),  # Lista de pedidos
+    path('excluir-pedido/<int:pedido_id>/', excluir_pedido, name='excluir_pedido'),
+    path('gerenciar-pedidos/', gerenciar_pedidos, name='gerenciar_pedidos'),
+    path('aprovar-pedido/<int:pedido_id>/', aprovar_pedido, name='aprovar_pedido'),
+    path('negar-pedido/<int:pedido_id>/', negar_pedido, name='negar_pedido'),
+    
 ]

@@ -7,8 +7,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User, Group
 from datetime import timedelta
 from django.utils import timezone
-from .models import Produto, MovimentoEstoque, Categoria
-from .forms import LoginForm, RegistrationForm, MovimentoEstoqueForm, UsuarioForm
+from .models import Produto, MovimentoEstoque, Categoria, Pedido
+from .forms import LoginForm, RegistrationForm, MovimentoEstoqueForm, UsuarioForm, PedidoForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.http import require_POST
@@ -291,15 +291,48 @@ def admin_dashboard(request):
 
     return render(request, 'admin_dashboard.html', {'users': users})
 
+def sua_view(request):
+    return render(request, 'modelo.html')
 
+@login_required
+def lista_pedidos(request):
+    # Filtra os pedidos do usuário logado
+    pedidos = Pedido.objects.filter(usuario=request.user)  # Apenas pedidos do usuário logado
+    return render(request, 'lista_pedidos.html', {'pedidos': pedidos})
 
-
+# View para fazer um pedido
 @login_required
 def pedidos_view(request):
     if request.method == 'POST':
-        # Processamento do pedido
-        pass
+        produto = request.POST['produto']
+        quantidade = request.POST['quantidade']
+        pedido = Pedido(usuario=request.user, produto=produto, quantidade=quantidade, status='Pendente')  # Atribui o usuário
+        pedido.save()
+        return redirect('lista_pedidos')
     return render(request, 'pedidos.html')
 
-def sua_view(request):
-    return render(request, 'modelo.html')
+def excluir_pedido(request, pedido_id):
+    pedido = get_object_or_404(Pedido, id=pedido_id)  # Verifica se o pedido pertence ao usuário logado
+    pedido.delete()  # Remove o pedido do banco de dados
+    return redirect('lista_pedidos')  # Redireciona para a lista de pedidos
+
+
+def gerenciar_pedidos(request):
+    if not request.user.is_authenticated or not request.user.is_superuser:
+        return redirect('login')  # Redireciona para a página de login se não for um superusuário
+
+    pedidos = Pedido.objects.all()  # Obtém todos os pedidos
+
+    return render(request, 'gerenciar_pedidos.html', {'pedidos': pedidos})
+
+def aprovar_pedido(request, pedido_id):
+    pedido = Pedido.objects.get(id=pedido_id)
+    pedido.status = 'Aprovado'  # Ou o valor que você usa para 'aprovado'
+    pedido.save()
+    return redirect('gerenciar_pedidos')
+
+def negar_pedido(request, pedido_id):
+    pedido = Pedido.objects.get(id=pedido_id)
+    pedido.status = 'Negado'  # Ou o valor que você usa para 'negado'
+    pedido.save()
+    return redirect('gerenciar_pedidos')

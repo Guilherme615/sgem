@@ -40,3 +40,14 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
+    
+
+class Pedido(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)  # Adiciona a relação com o usuário
+    produto = models.CharField(max_length=100)  # Exemplo de campo para o produto
+    quantidade = models.PositiveIntegerField()  # Campo para quantidade
+    status = models.CharField(max_length=20, choices=[
+        ('Pendente', 'Pendente'),
+        ('Aprovado', 'Aprovado'),
+        ('Negado', 'Negado')
+    ])

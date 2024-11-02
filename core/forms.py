@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .models import Produto, MovimentoEstoque
+from .models import Produto, MovimentoEstoque, Pedido
 
 # Formulário de Login
 class LoginForm(forms.Form):
@@ -103,3 +103,8 @@ class UsuarioForm(forms.ModelForm):
         if commit:
             user.save()
         return user
+
+class PedidoForm(forms.ModelForm):
+    class Meta:
+        model = Pedido
+        fields = ['produto', 'quantidade']

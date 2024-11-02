@@ -1,0 +1,49 @@
+{% extends 'modelo.html' %}
+
+{% block titulo %}
+    <title>Gerenciar Pedidos</title>
+{% endblock %}
+
+{% block conteudo %}
+    <div class="container">
+        <div class="text-center">
+            <h3>Gerenciamento de Pedidos</h3>
+        </div>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID do Pedido</th>
+                    <th>Quantidade</th>
+                    <th>Quem Fez</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if pedidos and pedidos|length > 0 %}
+                    {% for pedido in pedidos %}
+                        <tr>
+                            <td>{{ pedido.id }}</td>
+                            <td>{{ pedido.quantidade }}</td>
+                            <td>{{ user.username }}</td> <!-- Supondo que 'usuario' relacione o pedido ao usuário -->
+                            <td>
+                                <form method="post" action="{% url 'aprovar_pedido' pedido.id %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success">Aprovar</button>
+                                </form>
+                                <form method="post" action="{% url 'negar_pedido' pedido.id %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger">Negar</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="3" class="text-center">Nenhum pedido feito.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
