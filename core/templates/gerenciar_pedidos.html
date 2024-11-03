@@ -25,7 +25,7 @@
                         <tr>
                             <td>{{ pedido.id }}</td>
                             <td>{{ pedido.quantidade }}</td>
-                            <td>{{ user.username }}</td> <!-- Supondo que 'usuario' relacione o pedido ao usuário -->
+                            <td>{{ pedido.usuario.username }}</td> <!-- Exibe o nome de usuário de quem fez o pedido -->
                             <td>
                                 <form method="post" action="{% url 'aprovar_pedido' pedido.id %}" style="display:inline;">
                                     {% csrf_token %}

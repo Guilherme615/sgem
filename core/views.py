@@ -317,13 +317,37 @@ def excluir_pedido(request, pedido_id):
     return redirect('lista_pedidos')  # Redireciona para a lista de pedidos
 
 
+@login_required
 def gerenciar_pedidos(request):
-    if not request.user.is_authenticated or not request.user.is_superuser:
-        return redirect('login')  # Redireciona para a página de login se não for um superusuário
-
-    pedidos = Pedido.objects.all()  # Obtém todos os pedidos
+    pedidos = Pedido.objects.select_related('usuario').all()  # Carrega o usuário relacionado
+    if request.method == 'POST':
+        pedido_id = request.POST.get('pedido_id')
+        pedido = get_object_or_404(Pedido, id=pedido_id)
+        
+        if request.POST.get('acao') == 'excluir':
+            pedido.delete()
+        else:
+            status = request.POST.get('status')
+            pedido.status = status
+            pedido.save()
+        
+        return redirect('gerenciar_pedidos')
 
     return render(request, 'gerenciar_pedidos.html', {'pedidos': pedidos})
+
+
+def atualizar_status_pedido(request, pedido_id):
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+    
+    if request.method == 'POST':
+        if request.POST.get('acao') == 'excluir':
+            pedido.delete()
+        else:
+            status = request.POST.get('status')
+            pedido.status = status
+            pedido.save()
+    
+    return redirect('gerenciar_pedidos')
 
 def aprovar_pedido(request, pedido_id):
     pedido = Pedido.objects.get(id=pedido_id)

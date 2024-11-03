@@ -51,3 +51,4 @@ class Pedido(models.Model):
         ('Aprovado', 'Aprovado'),
         ('Negado', 'Negado')
     ])
+
