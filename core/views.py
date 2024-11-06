@@ -296,8 +296,13 @@ def sua_view(request):
 
 @login_required
 def lista_pedidos(request):
-    # Filtra os pedidos do usuário logado
-    pedidos = Pedido.objects.filter(usuario=request.user)  # Apenas pedidos do usuário logado
+    # Se o usuário for administrador, mostra todos os pedidos
+    if request.user.is_superuser or request.user.groups.filter(name='adm').exists():
+        pedidos = Pedido.objects.all()
+    else:
+        # Caso contrário, mostra apenas os pedidos do usuário logado
+        pedidos = Pedido.objects.filter(usuario=request.user)
+        
     return render(request, 'lista_pedidos.html', {'pedidos': pedidos})
 
 # View para fazer um pedido
