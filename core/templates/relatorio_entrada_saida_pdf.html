@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Movimentação de Produtos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Relatório de Entrada e Saída de Produtos</h1>
+
+    {% if movimentos %}
+    <table>
+        <thead>
+            <tr>
+                <th>Produto</th>
+                <th>Quantidade</th>
+                <th>Data de movimento</th>
+                <th>Tipo</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for movimento in movimentos %}
+                <tr>
+                    <td>{{ movimento.produto.nome }}</td>
+                    <td>{{ movimento.quantidade }}</td>
+                    <td>{{ movimento.data_movimento|date:"d/m/Y" }}</td>
+                    <td>{{ movimento.get_tipo_display }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>Nenhum movimento encontrado.</p>
+    {% endif %}
+</body>
+</html>
