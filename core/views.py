@@ -7,13 +7,14 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User, Group
 from datetime import timedelta
 from django.utils import timezone
-from .models import Produto, MovimentoEstoque, Categoria, Pedido
+from .models import Produto, MovimentoEstoque, Categoria, Pedido, Escola
 from .forms import LoginForm, RegistrationForm, MovimentoEstoqueForm, UsuarioForm, PedidoForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.http import require_POST
 from django.urls import reverse, reverse_lazy
 from django.template import RequestContext
+from django.contrib.auth.decorators import user_passes_test
 
 
 # Página inicial
@@ -365,3 +366,20 @@ def negar_pedido(request, pedido_id):
     pedido.status = 'Negado'  # Ou o valor que você usa para 'negado'
     pedido.save()
     return redirect('gerenciar_pedidos')
+
+def criar_escola(request):
+    if request.method == 'POST':
+        nome = request.POST.get('nome')
+        administrador_id = request.POST.get('administrador')
+        
+        administrador = User.objects.get(id=administrador_id)
+        
+        # Criando a nova escola sem o endereço
+        escola = Escola(nome=nome, administrador=administrador)
+        escola.save()
+        
+        return redirect('lista_escolas')  # Redireciona para a lista de escolas ou outra página desejada
+    
+    # Se o método for GET, passamos os usuários para o formulário
+    usuarios = User.objects.filter(profile__tipo='adm')
+    return render(request, 'criar_escola.html', {'usuarios': usuarios})

@@ -33,5 +33,5 @@ urlpatterns = [
     path('gerenciar-pedidos/', gerenciar_pedidos, name='gerenciar_pedidos'),
     path('aprovar-pedido/<int:pedido_id>/', aprovar_pedido, name='aprovar_pedido'),
     path('negar-pedido/<int:pedido_id>/', negar_pedido, name='negar_pedido'),
-    
+    path('criar-escola/', views.criar_escola, name='criar_escola'),
 ]

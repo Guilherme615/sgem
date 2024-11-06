@@ -1,0 +1,17 @@
+{% extends 'modelo.html' %}
+
+{% block content %}
+<h2>Criar Nova Escola</h2>
+
+<form method="POST" action="{% url 'criar_escola' %}">
+    {% csrf_token %}
+    
+    <div class="form-group">
+        <label for="nome">Nome da Escola:</label>
+        <input type="text" class="form-control" id="nome" name="nome" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Criar Escola</button>
+</form>
+
+{% endblock %}
