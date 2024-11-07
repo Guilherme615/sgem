@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 # Modelo para Categorias de Produtos (Ex: Alimentos, Bebidas)
 class Categoria(models.Model):
     nome = models.CharField(max_length=100)
+    escola = models.ForeignKey('Escola', on_delete=models.CASCADE, null=True, blank=True)  # Permitindo nulos por enquanto
 
     def __str__(self):
         return self.nome
@@ -11,6 +12,9 @@ class Categoria(models.Model):
 class Escola(models.Model):
     nome = models.CharField(max_length=100)
     administrador = models.ForeignKey(User, on_delete=models.CASCADE)  # O admin responsável pela escola
+
+    def __str__(self):
+        return self.nome
 
 # Modelo para Produtos
 class Produto(models.Model):
@@ -41,6 +45,8 @@ class Profile(models.Model):
         ('nutricionista', 'Nutricionista'),
         ('adm', 'Administrador')
     ], default='adm')
+    escola = models.ForeignKey('Escola', on_delete=models.SET_NULL, null=True, blank=True)  # Adiciona a chave estrangeira para associar o usuário à escola
+
 
     def __str__(self):
         return self.user.username

@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .models import Produto, MovimentoEstoque, Pedido
+from .models import Produto, MovimentoEstoque, Pedido, Escola
 
 # Formulário de Login
 class LoginForm(forms.Form):
@@ -31,9 +31,15 @@ class RegistrationForm(UserCreationForm):
         label="Nome"
     )
 
+    escola = forms.ModelChoiceField(
+        queryset=Escola.objects.all(), 
+        required=True, 
+        widget=forms.Select(attrs={'class': 'form-control'}))
+
+
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'password1', 'password2')
+        fields = ('username', 'email', 'first_name', 'password1', 'password2', 'escola')
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -108,3 +114,8 @@ class PedidoForm(forms.ModelForm):
     class Meta:
         model = Pedido
         fields = ['produto', 'quantidade']
+
+class EscolaForm(forms.ModelForm):
+    class Meta:
+        model = Escola
+        fields = ['nome']  # Apenas o campo 'nome' será exibido no formulário

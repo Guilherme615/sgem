@@ -8,7 +8,7 @@ from django.contrib.auth.models import User, Group
 from datetime import timedelta
 from django.utils import timezone
 from .models import Produto, MovimentoEstoque, Categoria, Pedido, Escola
-from .forms import LoginForm, RegistrationForm, MovimentoEstoqueForm, UsuarioForm, PedidoForm
+from .forms import LoginForm, RegistrationForm, MovimentoEstoqueForm, UsuarioForm, PedidoForm, EscolaForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.http import require_POST
@@ -45,16 +45,21 @@ def register_view(request):
         form = RegistrationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.set_password(form.cleaned_data['password1'])  # Definindo a senha
+            user.set_password(form.cleaned_data['password1'])
             user.save()
-            login(request, user)  # Faz login automático do usuário após o registro
-            messages.success(request, 'Conta criada com sucesso!')  # Mensagem de sucesso
-            return redirect('home')  # Redireciona para a página inicial
+
+            # Cria o Profile manualmente
+            Profile.objects.create(user=user)
+
+            login(request, user)
+            messages.success(request, 'Conta criada com sucesso!')
+            return redirect('home')
         else:
-            messages.error(request, 'Erro ao criar conta. Verifique os dados.')  # Mensagem de erro
+            messages.error(request, 'Erro ao criar conta. Verifique os dados.')
     else:
         form = RegistrationForm()
     return render(request, 'register.html', {'form': form})
+
 
 # Logout do usuário
 def logout_view(request):
@@ -100,8 +105,17 @@ def cadastrar_produto(request):
 
 # View para listar produtos
 def lista_produtos(request):
-    produtos = Produto.objects.filter(is_deleted=False)  # Filtra produtos que não estão na lixeira
+    # Obtém a escola associada ao usuário logado
+    escola = request.user.profile.escola
+
+    # Filtra os produtos pela escola associada ao usuário logado
+    produtos = Produto.objects.filter(
+        is_deleted=False,
+        categoria__escola=escola  # Filtra pela escola relacionada ao produto
+    )
+
     return render(request, 'lista_produtos.html', {'produtos': produtos})
+
 
 
 # View para editar produto
@@ -181,8 +195,14 @@ def render_to_pdf(template_src, context_dict={}):
 
 # Relatório de Entrada e Saída de Produtos
 def relatorio_entrada_saida(request):
-    # Filtra apenas entradas e saídas (removendo edições do relatório)
-    movimentos = MovimentoEstoque.objects.filter(tipo__in=['entrada', 'saida']).order_by('-data_movimento')
+    # Obtém a escola associada ao usuário logado
+    escola = request.user.profile.escola
+
+    # Filtra os movimentos de estoque apenas para a escola do usuário
+    movimentos = MovimentoEstoque.objects.filter(
+        tipo__in=['entrada', 'saida'],
+        produto__categoria__escola=escola
+    ).order_by('-data_movimento')
 
     if request.method == 'POST' and 'limpar_relatorio' in request.POST:
         MovimentoEstoque.objects.all().delete()
@@ -194,6 +214,7 @@ def relatorio_entrada_saida(request):
         return pdf
 
     return render(request, 'relatorio_entrada_saida.html', {'movimentos': movimentos})
+
 
 # Relatório de Validade de Produtos
 def relatorio_validade_produtos(request):
@@ -367,19 +388,24 @@ def negar_pedido(request, pedido_id):
     pedido.save()
     return redirect('gerenciar_pedidos')
 
+from django.shortcuts import render
+from .models import Escola
+
+@login_required
 def criar_escola(request):
+    # Verificando se o formulário foi enviado
     if request.method == 'POST':
-        nome = request.POST.get('nome')
-        administrador_id = request.POST.get('administrador')
-        
-        administrador = User.objects.get(id=administrador_id)
-        
-        # Criando a nova escola sem o endereço
-        escola = Escola(nome=nome, administrador=administrador)
-        escola.save()
-        
-        return redirect('lista_escolas')  # Redireciona para a lista de escolas ou outra página desejada
-    
-    # Se o método for GET, passamos os usuários para o formulário
-    usuarios = User.objects.filter(profile__tipo='adm')
-    return render(request, 'criar_escola.html', {'usuarios': usuarios})
+        form = EscolaForm(request.POST)
+        if form.is_valid():
+            escola = form.save(commit=False)
+            escola.administrador = request.user  # Associando a escola ao administrador logado
+            escola.save()
+            return redirect('home')  # Redirecionar para a página inicial após a criação
+    else:
+        form = EscolaForm()
+
+    # Verificando se o template está sendo carregado corretamente
+    return render(request, 'criar_escola.html', {'form': form})
+
+
+
