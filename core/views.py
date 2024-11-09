@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User, Group
 from datetime import timedelta
 from django.utils import timezone
-from .models import Produto, MovimentoEstoque, Categoria, Pedido, Escola
+from .models import Produto, MovimentoEstoque, Categoria, Pedido, Profile
 from .forms import LoginForm, RegistrationForm, MovimentoEstoqueForm, UsuarioForm, PedidoForm, EscolaForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -49,7 +49,7 @@ def register_view(request):
             user.save()
 
             # Cria o Profile manualmente
-            Profile.objects.create(user=user)
+            Profile.objects.create(user=user, escola=form.cleaned_data['escola'])
 
             login(request, user)
             messages.success(request, 'Conta criada com sucesso!')
@@ -105,18 +105,8 @@ def cadastrar_produto(request):
 
 # View para listar produtos
 def lista_produtos(request):
-    # Obtém a escola associada ao usuário logado
-    escola = request.user.profile.escola
-
-    # Filtra os produtos pela escola associada ao usuário logado
-    produtos = Produto.objects.filter(
-        is_deleted=False,
-        categoria__escola=escola  # Filtra pela escola relacionada ao produto
-    )
-
+    produtos = Produto.objects.filter(is_deleted=False)  # Filtra produtos que não estão na lixeira
     return render(request, 'lista_produtos.html', {'produtos': produtos})
-
-
 
 # View para editar produto
 def editar_produto(request, id):
@@ -183,6 +173,7 @@ def lista_movimentos(request):
     movimentos = MovimentoEstoque.objects.all()
     print(f"Total de movimentos: {movimentos.count()}")  # Para debug
     return render(request, 'lista_movimentos.html', {'movimentos': movimentos})
+
 # Função auxiliar para gerar PDF
 def render_to_pdf(template_src, context_dict={}):
     template = get_template(template_src)
@@ -195,14 +186,8 @@ def render_to_pdf(template_src, context_dict={}):
 
 # Relatório de Entrada e Saída de Produtos
 def relatorio_entrada_saida(request):
-    # Obtém a escola associada ao usuário logado
-    escola = request.user.profile.escola
-
-    # Filtra os movimentos de estoque apenas para a escola do usuário
-    movimentos = MovimentoEstoque.objects.filter(
-        tipo__in=['entrada', 'saida'],
-        produto__categoria__escola=escola
-    ).order_by('-data_movimento')
+    # Filtra apenas entradas e saídas (removendo edições do relatório)
+    movimentos = MovimentoEstoque.objects.filter(tipo__in=['entrada', 'saida']).order_by('-data_movimento')
 
     if request.method == 'POST' and 'limpar_relatorio' in request.POST:
         MovimentoEstoque.objects.all().delete()
@@ -214,6 +199,8 @@ def relatorio_entrada_saida(request):
         return pdf
 
     return render(request, 'relatorio_entrada_saida.html', {'movimentos': movimentos})
+
+
 
 
 # Relatório de Validade de Produtos
@@ -346,11 +333,13 @@ def excluir_pedido(request, pedido_id):
 
 @login_required
 def gerenciar_pedidos(request):
-    pedidos = Pedido.objects.select_related('usuario').all()  # Carrega o usuário relacionado
+    # Carrega os pedidos junto com os perfis dos usuários para otimizar consultas
+    pedidos = Pedido.objects.select_related('usuario__profile', 'usuario__profile__escola').all()
+    
     if request.method == 'POST':
         pedido_id = request.POST.get('pedido_id')
         pedido = get_object_or_404(Pedido, id=pedido_id)
-        
+
         if request.POST.get('acao') == 'excluir':
             pedido.delete()
         else:
