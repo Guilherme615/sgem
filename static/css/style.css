@@ -21,7 +21,6 @@ body {
 .container {
     max-width: 800px; /* Limita a largura do container */
     margin: 0 auto;
-    padding: 50px 20px; /* Ajuste o padding superior e inferior para um melhor espaçamento */
     background-color: white; /* Fundo do container branco para contraste */
     border-radius: 10px; /* Bordas arredondadas */
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra para profundidade */
