@@ -1,10 +1,12 @@
 from django.apps import AppConfig
 
-class AppConfig(AppConfig):
+class CoreConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'app'
     name = 'core'
+
+    def ready(self):
+        import core.signals  # Isso garante que os sinais sejam registrados ao iniciar a aplicação
 
 class SeuAppConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'sgeme'  # Deve ser o mesmo nome da pasta do seu aplicativo
+    name = 'sgeme'  # O nome do seu outro aplicativo

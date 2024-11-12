@@ -1,0 +1,20 @@
+{% extends 'modelo.html' %}
+
+{% block conteudo %}
+<div class="container mt-5">
+    <h2 class="mb-4">Criar Nova Escola</h2>
+
+    <form method="POST" action="{% url 'criar_escola' %}" class="border p-4 rounded shadow-sm">
+        {% csrf_token %}
+
+        <!-- Nome da Escola -->
+        <div class="form-group mb-3">
+            <label for="nome">Nome da Escola:</label>
+            <input type="text" class="form-control" id="nome" name="nome" required>
+        </div>
+
+        <!-- Botão de Envio -->
+        <button type="submit" class="btn btn-primary btn-block">Criar Escola</button>
+    </form>
+</div>
+{% endblock %}

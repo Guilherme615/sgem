@@ -62,7 +62,18 @@
                                 </div>
                             {% endif %}
                         </div>
-                        
+
+                        <!-- Campo de seleção de escola -->
+                        <div class="mb-3">
+                            <label for="escola" class="form-label">Escolha uma Escola</label>
+                            {{ form.escola }}  <!-- Renderiza o campo de escola -->
+                            {% if form.escola.errors %}
+                                <div class="alert alert-danger mt-2">
+                                    {{ form.escola.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
                         <button type="submit" class="btn btn-custom">Cadastrar</button>
 
                         {% if form.non_field_errors %}

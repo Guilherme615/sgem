@@ -7,13 +7,14 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User, Group
 from datetime import timedelta
 from django.utils import timezone
-from .models import Produto, MovimentoEstoque, Categoria, Pedido
-from .forms import LoginForm, RegistrationForm, MovimentoEstoqueForm, UsuarioForm, PedidoForm
+from .models import Produto, MovimentoEstoque, Categoria, Pedido, Profile
+from .forms import LoginForm, RegistrationForm, MovimentoEstoqueForm, UsuarioForm, PedidoForm, EscolaForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.http import require_POST
 from django.urls import reverse, reverse_lazy
 from django.template import RequestContext
+from django.contrib.auth.decorators import user_passes_test
 
 
 # Página inicial
@@ -44,16 +45,21 @@ def register_view(request):
         form = RegistrationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.set_password(form.cleaned_data['password1'])  # Definindo a senha
+            user.set_password(form.cleaned_data['password1'])
             user.save()
-            login(request, user)  # Faz login automático do usuário após o registro
-            messages.success(request, 'Conta criada com sucesso!')  # Mensagem de sucesso
-            return redirect('home')  # Redireciona para a página inicial
+
+            # Cria o Profile manualmente
+            Profile.objects.create(user=user, escola=form.cleaned_data['escola'])
+
+            login(request, user)
+            messages.success(request, 'Conta criada com sucesso!')
+            return redirect('home')
         else:
-            messages.error(request, 'Erro ao criar conta. Verifique os dados.')  # Mensagem de erro
+            messages.error(request, 'Erro ao criar conta. Verifique os dados.')
     else:
         form = RegistrationForm()
     return render(request, 'register.html', {'form': form})
+
 
 # Logout do usuário
 def logout_view(request):
@@ -101,7 +107,6 @@ def cadastrar_produto(request):
 def lista_produtos(request):
     produtos = Produto.objects.filter(is_deleted=False)  # Filtra produtos que não estão na lixeira
     return render(request, 'lista_produtos.html', {'produtos': produtos})
-
 
 # View para editar produto
 def editar_produto(request, id):
@@ -168,6 +173,7 @@ def lista_movimentos(request):
     movimentos = MovimentoEstoque.objects.all()
     print(f"Total de movimentos: {movimentos.count()}")  # Para debug
     return render(request, 'lista_movimentos.html', {'movimentos': movimentos})
+
 # Função auxiliar para gerar PDF
 def render_to_pdf(template_src, context_dict={}):
     template = get_template(template_src)
@@ -193,6 +199,9 @@ def relatorio_entrada_saida(request):
         return pdf
 
     return render(request, 'relatorio_entrada_saida.html', {'movimentos': movimentos})
+
+
+
 
 # Relatório de Validade de Produtos
 def relatorio_validade_produtos(request):
@@ -324,11 +333,13 @@ def excluir_pedido(request, pedido_id):
 
 @login_required
 def gerenciar_pedidos(request):
-    pedidos = Pedido.objects.select_related('usuario').all()  # Carrega o usuário relacionado
+    # Carrega os pedidos junto com os perfis dos usuários para otimizar consultas
+    pedidos = Pedido.objects.select_related('usuario__profile', 'usuario__profile__escola').all()
+    
     if request.method == 'POST':
         pedido_id = request.POST.get('pedido_id')
         pedido = get_object_or_404(Pedido, id=pedido_id)
-        
+
         if request.POST.get('acao') == 'excluir':
             pedido.delete()
         else:
@@ -365,3 +376,25 @@ def negar_pedido(request, pedido_id):
     pedido.status = 'Negado'  # Ou o valor que você usa para 'negado'
     pedido.save()
     return redirect('gerenciar_pedidos')
+
+from django.shortcuts import render
+from .models import Escola
+
+@login_required
+def criar_escola(request):
+    # Verificando se o formulário foi enviado
+    if request.method == 'POST':
+        form = EscolaForm(request.POST)
+        if form.is_valid():
+            escola = form.save(commit=False)
+            escola.administrador = request.user  # Associando a escola ao administrador logado
+            escola.save()
+            return redirect('home')  # Redirecionar para a página inicial após a criação
+    else:
+        form = EscolaForm()
+
+    # Verificando se o template está sendo carregado corretamente
+    return render(request, 'criar_escola.html', {'form': form})
+
+
+
