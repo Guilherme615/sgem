@@ -19,6 +19,7 @@
                         <th>Nome</th>
                         <th>Email</th>
                         <th>Tipo de Usuário</th>
+                        <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -33,6 +34,12 @@
                                     <option value="adm">Adm</option>
                                 </select>
                                 <input type="hidden" name="user_id" value="{{ user.id }}">
+                            </td>
+                            <td>
+                                <form method="post" action="{% url 'excluir_usuario' user.id %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja excluir este usuário?');">Excluir</button>
+                                </form>                                
                             </td>
                         </tr>
                     {% endfor %}

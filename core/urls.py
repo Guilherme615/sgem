@@ -35,4 +35,6 @@ urlpatterns = [
     path('aprovar-pedido/<int:pedido_id>/', aprovar_pedido, name='aprovar_pedido'),
     path('negar-pedido/<int:pedido_id>/', negar_pedido, name='negar_pedido'),
     path('criar-escola/', criar_escola, name='criar_escola'),
+    path('admin_dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('excluir_usuario/<int:user_id>/', views.excluir_usuario, name='excluir_usuario'),
 ]

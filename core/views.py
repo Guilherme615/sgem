@@ -308,10 +308,16 @@ def lista_pedidos(request):
     # Se o usuário for administrador, mostra todos os pedidos
     if request.user.is_superuser or request.user.groups.filter(name='adm').exists():
         pedidos = Pedido.objects.all()
+
+    if request.GET.get('format') == 'pdf':
+            context = {'pedidos': pedidos}
+            pdf = render_to_pdf('pedidos_pdf.html', context)
+            return pdf
+
     else:
         # Caso contrário, mostra apenas os pedidos do usuário logado
         pedidos = Pedido.objects.filter(usuario=request.user)
-        
+    
     return render(request, 'lista_pedidos.html', {'pedidos': pedidos})
 
 # View para fazer um pedido
@@ -396,5 +402,24 @@ def criar_escola(request):
     # Verificando se o template está sendo carregado corretamente
     return render(request, 'criar_escola.html', {'form': form})
 
+@login_required(login_url='login')
+def excluir_usuario(request, user_id):
+    # Tenta buscar o usuário a ser excluído
+    user = get_object_or_404(User, id=user_id)
+
+    # Verifica se o usuário a ser excluído não é o usuário logado
+    if user.id == request.user.id:
+        messages.error(request, 'Você não pode excluir a si mesmo.')
+        return redirect('admin_dashboard')
+
+    # Exclui o usuário caso o método seja POST
+    if request.method == "POST":
+        user.delete()
+        messages.success(request, 'Usuário excluído com sucesso.')
+        return redirect('admin_dashboard')
+
+    # Redireciona caso o método não seja POST
+    messages.error(request, 'A exclusão deve ser realizada com um pedido POST.')
+    return redirect('admin_dashboard')
 
 
