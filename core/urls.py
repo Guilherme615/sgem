@@ -3,8 +3,8 @@ from . import views
 from .views import (
     login_view, home, register_view, cadastrar_produto, lista_produtos, 
     lista_movimentos, relatorio_entrada_saida, 
-    relatorio_validade_produtos, historico_movimentacoes, lista_usuarios, 
-    cadastrar_usuario, logout_view, editar_produto, excluir_produto, 
+    relatorio_validade_produtos, historico_movimentacoes, 
+    logout_view, editar_produto, excluir_produto, 
     pedidos_view, admin_dashboard, lixeira_produtos, produtos_proximos_validade, 
     lista_pedidos, gerenciar_pedidos, aprovar_pedido, negar_pedido, excluir_pedido,
     criar_escola
@@ -23,8 +23,6 @@ urlpatterns = [
     path('relatorio-entrada-saida/', relatorio_entrada_saida, name='relatorio_entrada_saida'),
     path('relatorios/validade/', relatorio_validade_produtos, name='relatorio_validade_produtos'),
     path('historico/movimentacoes/', historico_movimentacoes, name='historico_movimentacoes'),
-    path('usuarios/', lista_usuarios, name='lista_usuarios'),
-    path('usuarios/cadastrar/', cadastrar_usuario, name='cadastrar_usuario'),
     path('produtos/lixeira/', lixeira_produtos, name='lixeira_produtos'),
     path('produtos-proximos-validade/', produtos_proximos_validade, name='produtos_proximos_validade'),
     path('dashboard-admin/', admin_dashboard, name='admin_dashboard'),

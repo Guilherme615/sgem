@@ -213,24 +213,6 @@ def historico_movimentacoes(request):
     movimentos = MovimentoEstoque.objects.all()
     return render(request, 'historico_movimentacoes.html', {'movimentos': movimentos})
 
-# Cadastrar Usuários
-def cadastrar_usuario(request):
-    if request.method == 'POST':
-        form = UsuarioForm(request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.set_password(form.cleaned_data['password'])
-            user.save()
-            return redirect('lista_usuarios')
-    else:
-        form = UsuarioForm()
-    return render(request, 'cadastrar_usuario.html', {'form': form})
-
-# Lista de Usuários
-def lista_usuarios(request):
-    usuarios = User.objects.all()
-    return render(request, 'lista_usuarios.html', {'usuarios': usuarios})
-
 def lixeira_produtos(request):
     produtos_excluidos = Produto.objects.filter(is_deleted=True)  # Lista os produtos na lixeira
     return render(request, 'lixeira_produtos.html', {'produtos_excluidos': produtos_excluidos})
