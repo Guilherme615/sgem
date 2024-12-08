@@ -16,7 +16,6 @@ from django.urls import reverse, reverse_lazy
 from django.template import RequestContext
 from django.contrib.auth.decorators import user_passes_test
 
-
 # Página inicial
 def home(request):
     return render(request, 'index.html')
@@ -60,7 +59,6 @@ def register_view(request):
         form = RegistrationForm()
     return render(request, 'register.html', {'form': form})
 
-
 # Logout do usuário
 def logout_view(request):
     logout(request)
@@ -101,7 +99,6 @@ def cadastrar_produto(request):
 
     categorias = Categoria.objects.all()
     return render(request, 'cadastrar_produto.html', {'categorias': categorias})
-
 
 # View para listar produtos
 def lista_produtos(request):
@@ -153,7 +150,6 @@ def excluir_produto(request, id):
 
     return redirect('lista_produtos')
 
-
 # View para movimentação de estoque
 def movimentar_estoque(request):
     if request.method == 'POST':
@@ -199,9 +195,6 @@ def relatorio_entrada_saida(request):
         return pdf
 
     return render(request, 'relatorio_entrada_saida.html', {'movimentos': movimentos})
-
-
-
 
 # Relatório de Validade de Produtos
 def relatorio_validade_produtos(request):
@@ -364,9 +357,6 @@ def negar_pedido(request, pedido_id):
     pedido.status = 'Negado'  # Ou o valor que você usa para 'negado'
     pedido.save()
     return redirect('gerenciar_pedidos')
-
-from django.shortcuts import render
-from .models import Escola
 
 @login_required
 def criar_escola(request):
