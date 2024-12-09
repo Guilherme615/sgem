@@ -2,7 +2,7 @@ from django.urls import path
 from . import views
 from .views import (
     login_view, home, register_view, cadastrar_produto, lista_produtos, 
-    lista_movimentos, relatorio_entrada_saida, 
+    relatorio_entrada_saida, 
     historico_movimentacoes, 
     logout_view, editar_produto, excluir_produto, 
     pedidos_view, admin_dashboard, lixeira_produtos, produtos_proximos_validade, 
@@ -19,7 +19,6 @@ urlpatterns = [
     path('produtos/cadastrar/', cadastrar_produto, name='cadastrar_produto'),
     path('produtos/editar/<int:id>/', editar_produto, name='editar_produto'),
     path('produtos/excluir/<int:id>/', excluir_produto, name='excluir_produto'),
-    path('lista-movimentos/', lista_movimentos, name='lista_movimentos'),
     path('relatorio-entrada-saida/', relatorio_entrada_saida, name='relatorio_entrada_saida'),
     path('historico/movimentacoes/', historico_movimentacoes, name='historico_movimentacoes'),
     path('produtos/lixeira/', lixeira_produtos, name='lixeira_produtos'),

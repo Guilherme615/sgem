@@ -150,26 +150,6 @@ def excluir_produto(request, id):
 
     return redirect('lista_produtos')
 
-# View para movimentação de estoque
-def movimentar_estoque(request):
-    if request.method == 'POST':
-        form = MovimentoEstoqueForm(request.POST)
-        if form.is_valid():
-            movimento = form.save(commit=False)
-            movimento.data_movimento = timezone.now()  # Set the date manually here
-            movimento.usuario = request.user  # Associate the movement with the logged-in user
-            movimento.save()
-            return redirect('lista_movimentos')
-    else:
-        form = MovimentoEstoqueForm()
-    return render(request, 'movimentar_estoque.html', {'form': form})
-
-# View para listar movimentações de estoque
-def lista_movimentos(request):
-    movimentos = MovimentoEstoque.objects.all()
-    print(f"Total de movimentos: {movimentos.count()}")  # Para debug
-    return render(request, 'lista_movimentos.html', {'movimentos': movimentos})
-
 # Função auxiliar para gerar PDF
 def render_to_pdf(template_src, context_dict={}):
     template = get_template(template_src)
