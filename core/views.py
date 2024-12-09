@@ -196,11 +196,6 @@ def relatorio_entrada_saida(request):
 
     return render(request, 'relatorio_entrada_saida.html', {'movimentos': movimentos})
 
-# Relatório de Validade de Produtos
-def relatorio_validade_produtos(request):
-    produtos = Produto.objects.filter(data_validade__lt=timezone.now())
-    return render(request, 'relatorio_validade_produtos.html', {'produtos': produtos})
-
 # Histórico de Movimentações
 def historico_movimentacoes(request):
     movimentos = MovimentoEstoque.objects.all()
